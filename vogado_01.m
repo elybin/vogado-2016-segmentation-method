@@ -8,7 +8,7 @@ clear all
 close all
 
 % loading rgb image
-image_path = 'all-idb/02.jpg';
+image_path = 'all-idb/02.jpg'; % BloodSeg
 image_rgb = imread(image_path); %Read the color image
 
 figure('name','Vogado et al. (2016) Method Remake');
@@ -34,12 +34,28 @@ cmyk_m_con = imadjust(cmyk_m);
 cmyk_m_con_med = medfilt2(cmyk_m_con, [7 7]);
 
 % subtract *b(with cont adj and medfilter) with M
-img_subt = imsubtract(cmyk_m_con_med, lab_y_con_med);
+% before subtract we should convert into normal rgb
+lab_y_con_med = 
+imshow(lab_y_con_med);
+
+cmyk_m_con_med_rgb = 255 * repmat(uint8(cmyk_m_con_med), 1, 1, 3);
+cmyk_m_con_med_rgb = rgb2gray(cmyk_m_con_med_rgb);
+cmyk_m_con_med_rgb = ind2rgb(cmyk_m_con_med_rgb, gray(256));
+
+lab_y_con_med_rgb = 255 * repmat(uint8(lab_y_con_med), 1, 1, 3);
+lab_y_con_med_rgb = rgb2gray(lab_y_con_med_rgb);
+lab_y_con_med_rgb = ind2rgb(lab_y_con_med_rgb, gray(256));
+
+img_subt = imsubtract(cmyk_m_con_med_rgb, lab_y_con_med_rgb);
+
+
 
 % turn into grayscale 
-img_subt = 255 * repmat(uint8(img_subt), 1, 1, 3);
-img_gray = rgb2gray(img_subt);
-img_gray = ind2rgb(img_gray, gray(256));
+% img_subt = 255 * repmat(uint8(img_subt), 1, 1, 3);
+% img_gray = rgb2gray(img_subt);
+% img_gray = ind2rgb(img_gray, gray(256));
+
+img_gray = img_subt;
 
 
 % do clustering segmentation
@@ -61,34 +77,34 @@ img_morpho = afterEroding;
 
 subplot(2,4,1);
 imshow(image_rgb);
-title('Original', 'FontSize', 8);
+title('(a) Original', 'FontSize', 8);
 
 subplot(2,4,2);
 imshow(cmyk_m);
-title('M from CMYK', 'FontSize', 8);
+title('(b) M from CMYK', 'FontSize', 8);
 
 
 subplot(2,4,3);
 imshow(lab_y);
-title('*b from CIELAB', 'FontSize', 8);
+title('(c) *b from CIELAB', 'FontSize', 8);
 
 
 subplot(2,4,4);
 imshow(cmyk_m_con);
-title('M con adj + med(7x7)', 'FontSize', 8);
+title('(d) M con adj + med(7x7)', 'FontSize', 8);
 
 subplot(2,4,5);
 imshow(lab_y_con_med);
-title('*b con adj + med(7x7)', 'FontSize', 8);
+title('(e) *b con adj + med(7x7)', 'FontSize', 8);
 
 subplot(2,4,6);
 imshow(img_subt);
-title('*b - M', 'FontSize', 8);
+title('(f) *b - M', 'FontSize', 8);
 
 subplot(2,4,7);
 imshow(img_clustering);
-title('k-means clustering', 'FontSize', 8);
+title('k-means', 'FontSize', 8);
 
 subplot(2,4,8);
 imshow(img_morpho);
-title('Morphological Operation', 'FontSize', 8);
+title('(g)  Morphological Ops.', 'FontSize', 8);

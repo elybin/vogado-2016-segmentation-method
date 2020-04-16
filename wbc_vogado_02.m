@@ -2,26 +2,23 @@ function [ A ] = wbc_vogado( f )
 %% made some edit, to make more easy to debug 
 % original source code by @lhvogado at Aug 31, 2019
 % modified by @elybin at Apr 10, 2020
-
+%% if it's set into true, program 'll showing more detailed images
+% parted in 6
 show_detailed_figure = true;
 
-image_rgb = f;  % kim edit in 10/04/2020 - 8:11pm WIB
-
+image_rgb = f;  % send into figure (a)
+% pre-processing step, convert rgb into CIELAB (L*a*b)
 transforma = makecform('srgb2lab');
 lab = applycform(f,transforma);
 L = lab(:,:,1);
 A = lab(:,:,2);
-B = lab(:,:,3);
-lab_y = B; % kim edit
+B = lab(:,:,3); % the bcomponent
+lab_y = B; % send into figure (c)
 
 AD = imadd(L,B);
-f = im2double(f);
-r = f(:,:,1);
-
+f = im2double(f); % convert uint8 into double (don't really know what it is)              
+r = f(:,:,1); % red channel (rgb)
 r = imadjust(r);
-
-
-
 g = f(:,:,2);
 g = imadjust(g);
 b = f(:,:,3);
@@ -30,31 +27,29 @@ c = 1-r;
 c = imadjust(c);
 m = 1-g;
 
-cmyk_m = m; % kim edit
-
+cmyk_m = m; % send into figure (b)
+% add median filter into M component of CMYK
+% previously it set to 3x3. but, i changed to 7x7 referenced into tuhe
+% original paper
 m = medfilt2(m, [7 7]); % updated in 13/04/2016 - 6:15
 
-cmyk_m_con_med  = m;
+cmyk_m_con_med  = m; % send into figure (d)
 
-    
 m = imadjust(m);
-m = imadjust(m);
+% m = imadjust(m);
 
 y = 1-b;
 y = imadjust(y);
 AD = mat2gray(B);
 % AD = imadjust(AD);
 AD = medfilt2(AD, [7 7]); 
-
-lab_y_con_med = AD; % kim edit 
-
-
+lab_y_con_med = AD;  % send into figure (e)
+% subtract the M and b
 sub = imsubtract(m,AD);
-img_subt = sub; % kim edit 
+img_subt = sub; %  send into figure (f)
 
 CMY = cat(3,c,m,y);
 F = cat(3,r,g,b);
-% imshow(sub);
 %%
 LEN = 21;
 THETA = 11;

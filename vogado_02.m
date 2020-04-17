@@ -11,5 +11,5 @@ close all
 image_path = 'datasets/BloodSeg/BloodImage_00000.jpg'; % BloodSeg
 image_rgb = imread(image_path); %Read the color image
 
-A = wbc_vogado_02(image_rgb);
+[A] = wbc_vogado_02(image_rgb);
 % figure, imshow(A);
